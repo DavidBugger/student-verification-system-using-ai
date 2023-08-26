@@ -99,4 +99,4 @@ Replace `DavidBugger(https://github.com/DavidBugger)` with your actual name and 
 
 Make sure to adapt the file structure section to match the actual structure of your project.
 
-This `README.md` template provides a basic outline that you can customize with more details or additional sections as needed.
+
