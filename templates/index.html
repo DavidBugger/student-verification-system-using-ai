@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function showAlert(type, message) {
+            Swal.fire({
+                icon: type,
+                title: message,
+                showConfirmButton: false,
+                timer: 1500
+            });
+        }
+    </script>
+</head>
+<body>
+    <h1>Login</h1>
+    <form action="{{ url_for('login') }}" method="post">
+        <!-- ... Other form inputs ... -->
+    </form>
+    <p>Don't have an account? <a href="{{ url_for('dashboard') }}">Dashboard</a></p>
+</body>
+</html>

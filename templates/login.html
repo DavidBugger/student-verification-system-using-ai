@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+    <!-- Add SweetAlert and jQuery CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Login</h1>
+    <form id="login-form">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required><br>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required><br>
+        <input type="submit" value="Login">
+    </form>
+    
+    <script>
+        // Handle form submission
+        $('#login-form').submit(function(event) {
+            event.preventDefault();
+            
+            const username = $('#username').val();
+            const password = $('#password').val();
+            
+            $.ajax({
+                type: 'POST',
+                url: '{{ url_for("login") }}',
+                data: {
+                    username: username,
+                    password: password
+                },
+                success: function(response) {
+                    // Handle JSON response from Flask
+                    if (response.status === 'success') {
+                        showAlert('success', response.message);
+                        setTimeout(function() {
+                            window.location.href = '{{ url_for("dashboard") }}';
+                        }, 1000);
+                    } else {
+                        showAlert('error', response.message);
+                    }
+                }
+            });
+        });
+
+        function showAlert(type, message) {
+            Swal.fire({
+                icon: type,
+                title: message,
+                showConfirmButton: false,
+                timer: 1500
+            });
+        }
+    </script>
+</body>
+</html>
