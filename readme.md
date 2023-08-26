@@ -2,7 +2,7 @@ Certainly! Here's an example `README.md` file that explains the project and its 
 
 ---
 
-# Face Recognition System with Flask and SweetAlert
+# Face Recognition System with Flask 
 
 This project demonstrates a simple web-based face recognition system using Flask and SweetAlert. It captures images from the camera, performs face recognition, and displays recognized person's information using SweetAlert modals.
 
@@ -87,7 +87,7 @@ face-recognition-flask/
 
 ## Credits
 
-- This project is created by [Your Name](https://github.com/your-username).
+- This project is created by DavidBugger(https://github.com/DavidBugger.git).
 
 ## License
 
@@ -95,7 +95,7 @@ This project is licensed under the [MIT License](LICENSE).
 
 ---
 
-Replace `[Your Name](https://github.com/your-username)` with your actual name and GitHub profile link.
+Replace `DavidBugger(https://github.com/DavidBugger)` with your actual name and GitHub profile link.
 
 Make sure to adapt the file structure section to match the actual structure of your project.
 
