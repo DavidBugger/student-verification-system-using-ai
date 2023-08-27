@@ -38,6 +38,15 @@ This project utilizes Flask, OpenCV, and face_recognition library to create a we
     ```sh
     pip install -r requirements.txt
     ```
+    conda install -c conda-forge face_recognition
+    conda install -c conda-forge tensorflow
+
+    conda install flask
+    conda install -c conda-forge opencv
+
+
+    updating conda 
+    conda update -n base -c defaults cond
 
 ## Usage
 

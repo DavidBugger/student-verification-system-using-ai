@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Recognition with Camera</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4">Face Recognition with Camera</h1>
+        <div class="row">
+            <div class="col-md-6">
+                <div id="camera-container">
+                    <video id="camera-stream" autoplay playsinline style="width: 100%; height: auto;"></video>
+                </div>
+                <button id="start-camera" class="btn btn-primary mt-3">Start Camera</button>
+            </div>
+            <div class="col-md-6">
+                <div id="prediction-container" style="display: none;">
+                    <h3>Predict Information</h3>
+                    <button id="predict-btn" class="btn btn-success">Predict</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SweetAlert CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+    <!-- jQuery and Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    
+    <script>
+        let cameraStream;
+
+        $(document).ready(function() {
+            $('#start-camera').click(function() {
+                if (!cameraStream) {
+                    navigator.mediaDevices.getUserMedia({ video: true })
+                        .then(function(stream) {
+                            cameraStream = stream;
+                            $('#camera-stream').get(0).srcObject = cameraStream;
+                            $('#camera-container').show();
+                            $('#start-camera').attr('disabled', 'disabled');
+                            $('#prediction-container').show();
+                        })
+                        .catch(function(error) {
+                            console.error('Error accessing the camera:', error);
+                        });
+                }
+            });
+
+            $('#predict-btn').click(function() {
+                if (!cameraStream) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Camera not started!'
+                    });
+                    return;
+                }
+
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                const video = document.getElementById('camera-stream');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                const base64ImageData = canvas.toDataURL('image/jpeg');
+
+                $.ajax({
+                    url: '/recognize',
+                    type: 'POST',
+                    data: { image: base64ImageData },
+                    success: function(response) {
+                        if (response.message) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Oops...',
+                                text: response.message
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Recognition Successful',
+                                html: `Name: ${response.name}<br>Gender: ${response.gender}<br>Criminal Status: ${response.criminal_status}`
+                            });
+                        }
+                    },
+                    error: function() {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: 'An error occurred while recognizing the face'
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

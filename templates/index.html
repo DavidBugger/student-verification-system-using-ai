@@ -1,24 +1,89 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Login</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Feed</title>
+
+    <!-- Load face-api.js from CDN -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api@0.22.2/face-api.min.js"></script> -->
+    <script src="{{ url_for('static', filename='js/face-api.min.js') }}"></script>
+
+
+    <!-- Load SweetAlert library from CDN -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        function showAlert(type, message) {
-            Swal.fire({
-                icon: type,
-                title: message,
-                showConfirmButton: false,
-                timer: 1500
-            });
-        }
-    </script>
 </head>
 <body>
-    <h1>Login</h1>
-    <form action="{{ url_for('login') }}" method="post">
-        <!-- ... Other form inputs ... -->
-    </form>
-    <p>Don't have an account? <a href="{{ url_for('dashboard') }}">Dashboard</a></p>
+    <h1>Video Feed with Face Capture</h1>
+    <video id="video-feed" autoplay playsinline></video>
+    <canvas id="capture-canvas" style="display: none;"></canvas>
+    <button id="capture-button">Capture Face</button>
+    
+    <script>
+        const captureButton = document.getElementById('capture-button');
+        const videoFeed = document.getElementById('video-feed');
+        const captureCanvas = document.getElementById('capture-canvas');
+        const captureContext = captureCanvas.getContext('2d');
+        
+        // Get user media (video feed)
+        async function getVideoFeed() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                videoFeed.srcObject = stream;
+            } catch (error) {
+                console.error('Error accessing webcam:', error);
+            }
+        }
+        
+        // Function to find matching face
+        function findMatchingFace(queryDescriptor, labeledDescriptors) {
+            const faceMatcher = new faceapi.FaceMatcher(labeledDescriptors);
+            const bestMatch = faceMatcher.findBestMatch(queryDescriptor);
+            return bestMatch._label; // Return the name of the matched face
+        }
+        
+        // ... Rest of your JavaScript code ...
+        
+        captureButton.addEventListener('click', async () => {
+            if (!captureCanvas.width) {
+                return;
+            }
+            
+            // Capture face image
+            captureContext.drawImage(videoFeed, 0, 0, captureCanvas.width, captureCanvas.height);
+            const faceImageData = captureCanvas.toDataURL('image/jpeg');
+            
+            // Send captured image to server for recognition
+            const response = await fetch('/recognize_face', {
+                method: 'POST',
+                body: new URLSearchParams({ image_data: faceImageData })
+            });
+            
+            const recognitionData = await response.json();
+            
+            if (recognitionData) {
+                // Display SweetAlert modal with recognized face information
+                Swal.fire({
+                    title: 'Face Recognized',
+                    html: `Name: ${recognitionData.name}<br>Gender: ${recognitionData.gender}<br>Criminal Status: ${recognitionData.criminal_status}`,
+                    icon: 'success'
+                });
+            } else {
+                Swal.fire({
+                    title: 'Face Not Recognized',
+                    text: 'The captured face could not be recognized.',
+                    icon: 'error'
+                });
+            }
+        });
+        
+        // ... Your existing JavaScript code ...
+        
+        // Initialize the video feed
+        getVideoFeed().then(() => {
+            // Load face-api.js models
+            faceapi.nets.tinyFaceDetector.loadFromUri('/models').then(captureFaces);
+        });
+    </script>
 </body>
 </html>
